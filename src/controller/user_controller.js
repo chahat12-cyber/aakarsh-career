@@ -77,8 +77,17 @@ const UserController = {
         catch(ex) {
             return res.json({ success: false, message: ex });
         }
-    }
+    },
+
+     updateUserWithNewFields: async function(req,res){
+       console.log('inside here');
+    var newvalues = {$set: {age: "15"} };
+    UserModel.updateMany(newvalues);
+},
+
 
 }
+
+//UserController.updateUserWithNewFields();
 
 module.exports= UserController;

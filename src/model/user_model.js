@@ -2,9 +2,11 @@ const { Schema, model } = require('mongoose');
 
 
 const userSchema = new Schema({
+    id: { type: String, unique: true },
     fullName: { type: String, default: "" },
-    email: { type: String, unique: true,},
-    phoneNumber: { type: String, required: true, immutable: true},
+    email: { type: String, default: "" },
+    age: {type: Number, default: 15},
+    phoneNumber: { type: String, required: true, immutable: true, index: {unique: true}},
     profileProgress: { type: Number, default: 0 },
     updatedOn: { type: Date },
     createdOn: { type: Date }

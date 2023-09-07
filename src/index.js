@@ -11,13 +11,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors());
+require('dotenv').config();
 
-mongoose.connect("mongodb+srv://schahat801:fCh1dBpBCNllWEsi@cluster0.ghwehab.mongodb.net/aakarsh?retryWrites=true&w=majority").then(()=> console.log('Database connected'));
+mongoose.connect(process.env.DB_URL, { useNewUrlParser: true }).then(()=> console.log('Database connected'));
 const UserRoutes = require('./routes/user_route');
 app.use("/api/user", UserRoutes);
 
-const PORT= 5000;
+const PORT= 8000;
 
 
-app.listen(PORT, ()=> console.log('Server started at Port : 5000'));
+app.listen(PORT, ()=> console.log('Server started at Port : 8000'));
 
