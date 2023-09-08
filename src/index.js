@@ -17,7 +17,7 @@ mongoose.connect(process.env.DB_URL, { useNewUrlParser: true }).then(()=> consol
 const UserRoutes = require('./routes/user_route');
 app.use("/api/user", UserRoutes);
 
-const PORT= 8000;
+const PORT= process.env.PORT || 8000;
 
 
 app.listen(PORT, ()=> console.log('Server started at Port : 8000'));
