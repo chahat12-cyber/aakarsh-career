@@ -78,16 +78,37 @@ const UserController = {
             return res.json({ success: false, message: ex });
         }
     },
+    
+    deleteUser: async function(req, res){
+        try {
+            const userId = req.params.id; 
+        
+          
+            const user = await UserModel.findById(userId);
+        
+            if (!user) {
+              return res.status(404).json({ message: 'User not found' });
+            }
+        
+            
+            await UserModel.findByIdAndDelete(userId);
+        
+            res.status(204).json({message: 'User Deleted'}); // Respond with a 204 No Content status indicating success
+          } catch (err) {
+            console.error('Error deleting user:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+          }
+        
+    }
 
-     updateUserWithNewFields: async function(req,res){
-       console.log('inside here');
-    var newvalues = {$set: {age: "15"} };
-    UserModel.updateMany(newvalues);
-},
-
-
+    //  updateUserWithNewFields: async function(req,res){
+    //    console.log('inside here');
+    // var newvalues = {$set: {selectedClass: "12", selectedStream: "Science"} };
+    // UserModel.updateMany(newvalues);
 }
 
-//UserController.updateUserWithNewFields();
+
+
+// UserController.updateUserWithNewFields();
 
 module.exports= UserController;

@@ -7,5 +7,6 @@ UserRoute.post("/signIn", UserController.signIn);
 UserRoute.get("/fetchAllUsers", UserController.fetchAllUsers);
 UserRoute.get("/fetchUserById/:id", UserController.fetchUserById);
 UserRoute.put("/updateUser/:id", UserController.updateUser);
+UserRoute.delete("/deleteUser/:id", UserController.deleteUser);
 
 module.exports = UserRoute;
