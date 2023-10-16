@@ -16,8 +16,11 @@ require('dotenv').config();
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true }).then(()=> console.log('Database connected'));
 const UserRoutes = require('./routes/user_route');
 const EntranceRoutes = require('./routes/entrance_route');
+const BoardRoutes = require('./routes/board_route');
+
 app.use("/api/user", UserRoutes);
 app.use("/api/entrance", EntranceRoutes);
+app.use("/api/board", BoardRoutes);
 
 const PORT= process.env.PORT || 8000;
 
