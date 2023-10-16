@@ -99,12 +99,24 @@ const UserController = {
             res.status(500).json({ error: 'Internal Server Error' });
           }
         
-    }
+    },
 
-    //  updateUserWithNewFields: async function(req,res){
-    //    console.log('inside here');
-    // var newvalues = {$set: {selectedClass: "12", selectedStream: "Science"} };
-    // UserModel.updateMany(newvalues);
+//      updateUserWithNewFields: async function(req,res){
+//        console.log('inside here');
+//     var newvalues = {$set: {selectedBoard: "Competitive"} };
+//     UserModel.updateMany(newvalues);
+// }
+ updateUserWithNewFields: async function (req, res) {
+    try {
+      const updateResult = await UserModel.updateMany({}, { $set: { selectedBoard: "Competitive" } });
+  
+      console.log(`Updated ${updateResult.nModified} user(s).`);
+      
+    } catch (error) {
+      console.error(error);
+      
+    }
+  }
 }
 
 

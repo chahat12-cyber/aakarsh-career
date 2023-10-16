@@ -76,8 +76,7 @@ const EntranceController = {
             if (!data) {
               return res.status(404).json({ message: 'Data not found' });
             }
-        
-            
+    
             await entranceModel.findByIdAndDelete(id);
         
             res.status(204).json({message: 'Data Deleted'}); // Respond with a 204 No Content status indicating success

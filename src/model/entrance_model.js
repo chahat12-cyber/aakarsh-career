@@ -17,6 +17,10 @@ const entranceExamSchema = new Schema({
         type: String,
         required: true,
       },
+       boards: {
+              type: String,
+              required: true,
+            },
   });
 
 const EntranceModel = model('Entrance', entranceExamSchema);
