@@ -56,6 +56,19 @@ const UserController = {
             return res.json({ success: false, message: ex });
         }
     },
+
+     fetchUserByExamId: async function(req,res){
+        const examId = req.params.examId;
+       console.log(examId);
+     try {
+    // Find users who have the exam ID in their 'exams' array
+    const users = await UserModel.find({ exams: examId });
+    res.json({ users });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+     },
+
     updateUser: async function(req, res) {
         try {
             const userId = req.params.id;
@@ -82,15 +95,11 @@ const UserController = {
     deleteUser: async function(req, res){
         try {
             const userId = req.params.id; 
-        
-          
-            const user = await UserModel.findById(userId);
-        
+            const user = await UserModel.findById(userId);        
             if (!user) {
               return res.status(404).json({ message: 'User not found' });
             }
-        
-            
+
             await UserModel.findByIdAndDelete(userId);
         
             res.status(204).json({message: 'User Deleted'}); // Respond with a 204 No Content status indicating success
@@ -108,7 +117,7 @@ const UserController = {
 // }
  updateUserWithNewFields: async function (req, res) {
     try {
-      const updateResult = await UserModel.updateMany({}, { $set: { selectedBoard: "Competitive" } });
+      const updateResult = await UserModel.updateMany({}, { $set: { exams: ["652e22c6ed24413eb00eb8d2"] } });
   
       console.log(`Updated ${updateResult.nModified} user(s).`);
       

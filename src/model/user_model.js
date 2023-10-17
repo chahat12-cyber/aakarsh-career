@@ -19,6 +19,12 @@ const userSchema = new Schema({
         type: String,
         required: true,
       },
+      exams: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'Exam', 
+        },
+      ],
 });
 
 
