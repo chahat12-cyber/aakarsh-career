@@ -14,13 +14,20 @@ app.use(cors());
 require('dotenv').config();
 
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true }).then(()=> console.log('Database connected'));
+
 const UserRoutes = require('./routes/user_route');
 const EntranceRoutes = require('./routes/entrance_route');
 const BoardRoutes = require('./routes/board_route');
+const ClassRoutes = require('./routes/class_route');
+const StreamRoutes = require('./routes/stream_route');
+const ExamRoutes = require('./routes/exam_route');
 
 app.use("/api/user", UserRoutes);
 app.use("/api/entrance", EntranceRoutes);
 app.use("/api/board", BoardRoutes);
+app.use("/api/class", ClassRoutes);
+app.use("/api/stream", StreamRoutes);
+app.use("/api/exam", ExamRoutes);
 
 const PORT= process.env.PORT || 8000;
 
