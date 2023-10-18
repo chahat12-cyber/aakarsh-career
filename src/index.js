@@ -21,6 +21,7 @@ const BoardRoutes = require('./routes/board_route');
 const ClassRoutes = require('./routes/class_route');
 const StreamRoutes = require('./routes/stream_route');
 const ExamRoutes = require('./routes/exam_route');
+const ExamTypeRoutes = require('./routes/exam_type_route');
 
 app.use("/api/user", UserRoutes);
 app.use("/api/entrance", EntranceRoutes);
@@ -28,6 +29,7 @@ app.use("/api/board", BoardRoutes);
 app.use("/api/class", ClassRoutes);
 app.use("/api/stream", StreamRoutes);
 app.use("/api/exam", ExamRoutes);
+app.use("/api/exam-type", ExamTypeRoutes);
 
 const PORT= process.env.PORT || 8000;
 
