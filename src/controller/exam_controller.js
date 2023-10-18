@@ -118,7 +118,20 @@ updateExamData: async function (req, res) {
             console.error('Error deleting user:', err);
             res.status(500).json({ error: 'Internal Server Error' });
           }
-    }
+    },
+
+    // updateUserWithNewFields: async function (req, res) {
+    //   try {
+    //     examModel.getCollection('Exam').update({}, {$rename: { "entrance": "board" } }, false, true)
+
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // }
+    
+    
   
 }
+
+// ExamController.updateUserWithNewFields();
 module.exports = ExamController;

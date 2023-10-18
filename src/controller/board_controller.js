@@ -15,10 +15,8 @@ const BoardController = {
         }
     },
 
-
     fetchAllBoard: async function(req, res) {
         try {
-           
             const foundboard = await boardModel.find();
            
             return res.json({ success: true, data: foundboard });
@@ -27,9 +25,6 @@ const BoardController = {
             return res.json({ success: false, message: ex });
         }
     },
-
-
-     
 
       updateBoardData: async function(req, res) {
         try {
@@ -73,7 +68,6 @@ const BoardController = {
           }
         
     }
-
 }
 
 
