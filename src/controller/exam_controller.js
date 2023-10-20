@@ -1,56 +1,134 @@
 const examModel = require('../model/exam_model');
+const multer = require('multer');
+
+const storage = multer.memoryStorage(); // Use memory storage
+const upload = multer({ storage: storage });
 
 
 const ExamController = {
- createExam : async function(req, res) {
+  createExam: async function (req, res) {
+    console.log(`calling`)
     try {
+      // Use the 'upload.single' middleware to handle the image file upload
+      upload.single('image')(req, res, async function (err) {
+        if (err instanceof multer.MulterError) {
+          return res.status(400).json({ success: false, message: 'Image upload error' });
+        } else if (err) {
+          return res.status(500).json({ success: false, message: err });
+        }
+  
         const data = req.body;
-        const newData = new examModel(data);
+        const image = req.file;
+
+        console.log(data)
+        console.log(image)
+        const usersArray = JSON.parse(data.users);
+        const newData = new examModel({
+          examName: data.examName,
+          description: data.description,
+          entrance: data.entrance,
+          stream: data.stream,
+          class: data.class,
+          image: {
+            data: image.buffer,
+            contentType: image.mimetype,
+          },
+          users: usersArray
+        });
+  
         await newData.save();
-
-        return res.json({ success: true, data: newData,});
+      console.log(newData);
+        // Create a response object that includes the _id, name, and image
+        const responseObject = {
+          _id: newData._id, // Include the _id field
+          examName: data.examName,
+          description: data.description,
+          entrance: data.entrance,
+          stream: data.stream,
+           class: data.class,
+          image: newData.image.data.toString('base64'), // Convert image data to base64
+          users: newData.users
+        };
+  
+        res.json({ success: true, data: responseObject });
+      });
+    } catch (ex) {
+      return res.status(500).json({ success: false, message: ex });
     }
-    catch(ex) {
-        return res.json({ success: false, message: ex });
-    }
-},
-
- fetchAllExams: async function(req, res) {
+  },
+  
+  fetchAllExams: async function (req, res) {
     try {
-       
-        const foundExam = await examModel.find();
-       
-        return res.json({ success: true, data: foundExam });
+      // Specify the field names you want in the projection
+      const foundExams = await examModel.find({}, '_id examName description stream class image users').lean();
+  
+      const formattedExams = foundExams.map((exam) => {
+        // Convert the image data to base64
+        const imageBase64 = exam.image.data.toString('base64');
+  
+        return {
+          _id: exam._id, // Include the _id field
+          examName: exam.examName,
+          description: exam.description,
+          stream: exam.stream,
+          class: exam.class,
+          image: imageBase64,
+          users: exam.users
+        };
+      });
+  
+      return res.json({ success: true, data: formattedExams });
+    } catch (ex) {
+      return res.json({ success: false, message: ex });
     }
-    catch(ex) {
-        return res.json({ success: false, message: ex });
+  },
+  getExamByFilter: async function (req, res) {
+    console.log(`calling`)
+    const { className, streamName, entranceName } = req.body;
+    console.log(className)
+    console.log(streamName)
+    console.log('Received query parameters:', { className, streamName, entranceName });
+  
+    // Create a filter object based on the provided query parameters
+    const filter = {};
+  
+    if (className) {
+      filter.class = className;
+      console.log('Adding class filter:', className);
     }
-},
+    if (streamName) {
+      filter.stream = streamName;
+      console.log('Adding stream filter:', streamName);
+    }
+    if (entranceName) {
+      filter.entrance = entranceName;
+      console.log('Adding entrance filter:', entranceName);
+    }
+  
+    try {
+      const exams = await examModel.find(filter);
 
- getExamByFilter: async function(req,res){
-        const { className, streamName, entranceName } = req.body;
-
-        console.log('Received query parameters:', { className, streamName, entranceName });
-        
-        // Create a filter object based on the provided query parameters
-        const filter = {};
-        if (className) {
-          filter.class = className;
-          console.log('Adding class filter:', className);
-        }
-        if (streamName) {
-          filter.stream = streamName;
-          console.log('Adding stream filter:', streamName);
-        }
-        if (entranceName) {
-          filter.entrance = entranceName;
-          console.log('Adding entrance filter:', entranceName);
-        }
-        
-        const exams = await examModel.find(filter);
-        
-        res.json({ exams });
-},
+      const formattedExams = exams.map((exam) => {
+        // Convert the image data to base64
+        const imageBase64 = exam.image.data.toString('base64');
+  
+        return {
+          _id: exam._id, // Include the _id field
+          examName: exam.examName,
+          description: exam.description,
+          stream: exam.stream,
+          class: exam.class,
+          image: imageBase64,
+          users: exam.users
+        };
+      });
+  
+      // Include the query parameters in the response body
+      return res.json({ success: true, data: formattedExams});
+    } catch (ex) {
+      return res.json({ success: false, message: ex });
+    }
+  },
 
 getExamByUserId: async function(req,res){
     const userId = req.params.userId;
@@ -58,50 +136,112 @@ getExamByUserId: async function(req,res){
   try {
     // Find exams that have the user's ID in the users array
     const exams = await examModel.find({ users: userId });
+    const formattedExams = exams.map((exam) => {
+      // Convert the image data to base64
+      const imageBase64 = exam.image.data.toString('base64');
 
-    res.json({ exams });
+      return {
+        _id: exam._id, // Include the _id field
+        examName: exam.examName,
+        description: exam.description,
+        stream: exam.stream,
+        class: exam.class,
+        image: imageBase64,
+        users: exam.users
+      };
+    });
+
+    // Include the query parameters in the response body
+    return res.json({ success: true, data: formattedExams});
+   
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 },
-
-getExamByExamId: async function(req,res){
+getExamByExamId: async function (req, res) {
   const examId = req.params.examId;
-  console.log(examId)
-  try {
-    
-    const exam = await examModel.findById(examId);
+  console.log(examId);
 
-    if (!exam) {
+  try {
+    const findexam = await examModel.findById(examId);
+
+    if (!findexam) {
       return res.status(404).json({ error: 'Exam not found' });
     }
 
-    res.json({ exam });
+    // Format the exam here (no need to use .map())
+    const imageBase64 = findexam.image.data.toString('base64');
+    const formattedExam = {
+      _id: findexam._id,
+      examName: findexam.examName,
+      description: findexam.description,
+      stream: findexam.stream,
+      class: findexam.class,
+      image: imageBase64,
+      users: findexam.users,
+    };
+
+    res.json({ formattedExam });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 },
 
-updateExamData: async function (req, res) {
-    try {
-      const examId = req.params.id;
-      const updateData = req.body;
 
-      const updatedExam = await examModel.findOneAndUpdate(
-        { _id: examId },
-        updateData,
-        { new: true }
-      );
-  
-      if (!updatedExam) {
+updateExamData: async function (req, res) {
+  try {
+    const examId = req.params.id;
+    const updateData = req.body;
+
+    // Use the 'upload.single' middleware to handle the image file upload
+    upload.single('image')(req, res, async function (err) {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ success: false, message: 'Image upload error' });
+      } else if (err) {
+        return res.status(500).json({ success: false, message: err });
+      }
+
+      const updatedImage = req.file; // This will contain the updated image
+
+      // Find the existing exam
+      const existingExam = await examModel.findById(examId);
+
+      if (!existingExam) {
         return res.status(404).json({ success: false, message: 'Exam not found' });
       }
-  
-      return res.json({ success: true, data: updatedExam });
-    } catch (error) {
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
-  },
+
+      // Update exam properties (excluding the image)
+      existingExam.examName = updateData.examName || existingExam.examName;
+      existingExam.description = updateData.description || existingExam.description;
+      existingExam.entrance = updateData.entrance || existingExam.entrance;
+      existingExam.stream = updateData.stream || existingExam.stream;
+      existingExam.class = updateData.class || existingExam.class;
+
+      if (updatedImage) {
+        // Update the image if a new one was provided
+        existingExam.image.data = updatedImage.buffer;
+        existingExam.image.contentType = updatedImage.mimetype;
+      }
+
+      // Save the updated exam
+      const updatedExam = await existingExam.save();
+      const responseObject = {
+        _id: updatedExam._id, // Include the _id field
+        examName: updatedExam.examName,
+        description: updatedExam.description,
+        entrance: updatedExam.entrance,
+        stream: updatedExam.stream,
+        class: updatedExam.class,
+        image: updatedExam.image.data.toString('base64'), // Convert image data to base64
+        users: updatedExam.users
+      };
+      return res.json({ success: true, data: responseObject });
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+},
+
 
   deleteExamData: async function(req, res)
     {

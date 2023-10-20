@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 const examSchema = new Schema({
-  name: {
+  examName: {
     type: String,
     required: true,
   },
@@ -20,6 +20,10 @@ const examSchema = new Schema({
   class: {
     type: String,
     required: true,
+  },
+  image: {
+    data: Buffer,
+    contentType: String,  
   },
   users: [
     {

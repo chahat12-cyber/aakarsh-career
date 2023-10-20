@@ -21,12 +21,12 @@ const ExamTypeController = {
             const image = req.file;
       
             // Check if both 'name' and 'image' are present
-            if (!data.name || !image) {
+            if (!data.examTypeName || !image) {
               return res.status(400).json({ success: false, message: 'Both "name" and "image" are required' });
             }
       
             const newData = new examTypeModel({
-              name: data.name,
+              examTypeName: data.examTypeName,
               image: {
                 data: image.buffer,
                 contentType: image.mimetype,
@@ -38,7 +38,7 @@ const ExamTypeController = {
             // Create a response object that includes the _id, name, and image
             const responseObject = {
               _id: newData._id, // Include the _id field
-              name: data.name,
+              examTypeName: data.examTypeName,
               image: newData.image.data.toString('base64'), // Convert image data to base64
             };
       
@@ -51,7 +51,8 @@ const ExamTypeController = {
       
       fetchAllExamType: async function (req, res) {
         try {
-          const foundExams = await examTypeModel.find({}, '_id name image'); // Include '_id' in the projection
+          // Specify the field names you want in the projection
+          const foundExams = await examTypeModel.find({}, '_id examTypeName image').lean();
       
           const formattedExams = foundExams.map((exam) => {
             // Convert the image data to base64
@@ -59,7 +60,7 @@ const ExamTypeController = {
       
             return {
               _id: exam._id, // Include the _id field
-              name: exam.name,
+              examTypeName: exam.examTypeName, // Correct field name
               image: imageBase64,
             };
           });
@@ -69,23 +70,51 @@ const ExamTypeController = {
           return res.json({ success: false, message: ex });
         }
       },
+      
+      
       updateExamTypeById: async function (req, res) {
         try {
-          const { id } = req.params;
-          const dataToUpdate = req.body;
+          const examId = req.params.id;
+          const updateData = req.body;
       
-          // Use findByIdAndUpdate to update the document by ID, excluding the 'image' field
-          const updatedExamType = await examTypeModel
-            .findByIdAndUpdate(id, { $set: dataToUpdate }, { new: true })
-            .select('name _id'); // Project only 'name' and '_id' fields
+          // Use the 'upload.single' middleware to handle the image file upload
+          upload.single('image')(req, res, async function (err) {
+            if (err instanceof multer.MulterError) {
+              return res.status(400).json({ success: false, message: 'Image upload error' });
+            } else if (err) {
+              return res.status(500).json({ success: false, message: err });
+            }
       
-          if (!updatedExamType) {
-            return res.status(404).json({ success: false, message: 'ExamType not found' });
-          }
+            const updatedImage = req.file; // This will contain the updated image
       
-          res.json({ success: true, data: updatedExamType });
-        } catch (ex) {
-          return res.status(500).json({ success: false, message: ex });
+            // Find the existing exam
+            const existingExam = await examTypeModel.findById(examId);
+      
+            if (!existingExam) {
+              return res.status(404).json({ success: false, message: 'Exam not found' });
+            }
+      
+            // Update exam properties (excluding the image)
+            existingExam.examTypeName = updateData.examTypeName || existingExam.examTypeName;
+           
+            if (updatedImage) {
+              // Update the image if a new one was provided
+              existingExam.image.data = updatedImage.buffer;
+              existingExam.image.contentType = updatedImage.mimetype;
+            }
+      
+            // Save the updated exam
+            const updatedExam = await existingExam.save();
+            const responseObject = {
+              _id: updatedExam._id, // Include the _id field
+              examTypeName: updatedExam.examTypeName,
+              image: updatedExam.image.data.toString('base64'), // Convert image data to base64
+             
+            };
+            return res.json({ success: true, data: responseObject });
+          });
+        } catch (error) {
+          return res.status(500).json({ success: false, message: 'Internal Server Error' });
         }
       },
       fetchExamTypeById: async function (req, res) {
@@ -101,7 +130,7 @@ const ExamTypeController = {
       
           const responseObject = {
             _id: foundExam._id,
-            name: foundExam.name,
+            examTypeName: foundExam.examTypeName,
             image: imageBase64,
           };
       
@@ -115,7 +144,6 @@ const ExamTypeController = {
         try {
           const { id } = req.params; // Get the ID from the request params
       
-          // Use findByIdAndDelete to delete the document by ID
           const deletedExamType = await examTypeModel.findByIdAndDelete(id);
       
           if (!deletedExamType) {
