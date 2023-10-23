@@ -74,38 +74,74 @@ const BoardController = {
 
     updateBoardData: async function (req, res) {
         try {
-            const boardId = req.params.id;
-            const updateData = req.body;
-    
+          const boardId = req.params.id;
+          const updateData = req.body;
+      
+          // Use the 'upload.single' middleware to handle the image file upload
+          upload.single('boardimage')(req, res, async function (err) {
+            if (err instanceof multer.MulterError) {
+              return res.status(400).json({ success: false, message: 'Image upload error' });
+            } else if (err) {
+              return res.status(500).json({ success: false, message: err });
+            }
+      
             const updatedImage = req.file; // This will contain the updated image
-    
+            console.log('Uploaded File:', req.file);
+      
             // Find the existing board
             const existingBoard = await boardModel.findById(boardId);
-    
+      
             if (!existingBoard) {
-                return res.status(404).json({ success: false, message: 'Board not found' });
+              return res.status(404).json({ success: false, message: 'Board not found' });
             }
-    
+      
             // Update board properties (excluding the image)
-            existingBoard.name = updateData.name || existingBoard.name;
-    
-            if (updatedImage) {
-                // Update the image if a new one was provided
-                existingBoard.boardimage.data = updatedImage.buffer;
-                existingBoard.boardimage.contentType = updatedImage.mimetype;
-            }
-    
-            // Save the updated board
-            const updatedBoard = await existingBoard.save();
-            const responseObject = {
-                _id: updatedBoard._id, // Include the _id field
-                name: updatedBoard.name,
-                boardimage: updatedBoard.boardimage.data.toString('base64'), // Convert image data to base64
-            };
-            return res.json({ success: true, data: responseObject });
+          // Update exam properties (excluding the image)
+// Update board properties (excluding the image)
+existingBoard.name = updateData.name || existingBoard.name;
+
+if (updatedImage) {
+    // Update the image if a new one was provided
+    existingBoard.boardimage.data = updatedImage.buffer;
+    existingBoard.boardimage.contentType = updatedImage.mimetype;
+}
+
+const updatedBoard = await existingBoard.save();
+const responseObject = {
+    _id: updatedBoard.__id, // Include the _id field
+    name: updatedBoard.name,
+    boardimage: updatedBoard.boardimage.data.toString('base64'), // Convert image data to base64
+};
+
+return res.json({ success: true, data: responseObject });
+
+          });
         } catch (error) {
-            return res.status(500).json({ success: false, message: 'Internal Server Error' });
+          return res.status(500).json({ success: false, message: 'Internal Server Error' });
         }
+      },
+
+        fetchExamTypeById: async function (req, res) {
+          try {
+            const { id } = req.params;
+        
+            const foundExam = await examTypeModel.findById(id);
+        
+            if (!foundExam) {
+              return res.status(404).json({ success: false, message: 'ExamType not found' });
+            }
+            const imageBase64 = foundExam.image.data.toString('base64');
+        
+            const responseObject = {
+              _id: foundExam._id,
+              examTypeName: foundExam.examTypeName,
+              image: imageBase64,
+            };
+        
+            res.json({ success: true, data: responseObject });
+          } catch (ex) {
+            return res.status(500).json({ success: false, message: ex });
+          }
     },
     
     deleteBoardData: async function(req, res){
