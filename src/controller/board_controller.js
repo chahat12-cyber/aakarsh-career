@@ -77,41 +77,32 @@ const BoardController = {
             const boardId = req.params.id;
             const updateData = req.body;
     
-            // Use the 'upload.single' middleware to handle the image file upload
-            upload.single('boardimage')(req, res, async function (err) {
-                if (err instanceof multer.MulterError) {
-                    return res.status(400).json({ success: false, message: 'Image upload error' });
-                } else if (err) {
-                    return res.status(500).json({ success: false, message: err });
-                }
+            const updatedImage = req.file; // This will contain the updated image
     
-                const updatedImage = req.file; // This will contain the updated image
+            // Find the existing board
+            const existingBoard = await boardModel.findById(boardId);
     
-                // Find the existing board
-                const existingBoard = await boardModel.findById(boardId);
+            if (!existingBoard) {
+                return res.status(404).json({ success: false, message: 'Board not found' });
+            }
     
-                if (!existingBoard) {
-                    return res.status(404).json({ success: false, message: 'Board not found' });
-                }
+            // Update board properties (excluding the image)
+            existingBoard.name = updateData.name || existingBoard.name;
     
-                // Update board properties (excluding the image)
-                existingBoard.name = updateData.name || existingBoard.name;
+            if (updatedImage) {
+                // Update the image if a new one was provided
+                existingBoard.boardimage.data = updatedImage.buffer;
+                existingBoard.boardimage.contentType = updatedImage.mimetype;
+            }
     
-                if (updatedImage) {
-                    // Update the image if a new one was provided
-                    existingBoard.boardimage.data = updatedImage.buffer;
-                    existingBoard.boardimage.contentType = updatedImage.mimetype;
-                }
-    
-                // Save the updated board
-                const updatedBoard = await existingBoard.save();
-                const responseObject = {
-                    _id: updatedBoard._id, // Include the _id field
-                    name: updatedBoard.name,
-                    boardimage: updatedBoard.boardimage.data.toString('base64'), // Convert image data to base64
-                };
-                return res.json({ success: true, data: responseObject });
-            });
+            // Save the updated board
+            const updatedBoard = await existingBoard.save();
+            const responseObject = {
+                _id: updatedBoard._id, // Include the _id field
+                name: updatedBoard.name,
+                boardimage: updatedBoard.boardimage.data.toString('base64'), // Convert image data to base64
+            };
+            return res.json({ success: true, data: responseObject });
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Internal Server Error' });
         }

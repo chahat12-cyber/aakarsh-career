@@ -27,7 +27,6 @@ const examSchema = new Schema({
   },
   examType: {
     type: String,
-    required: true,
   },
   users: [
     {

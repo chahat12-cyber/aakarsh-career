@@ -223,11 +223,15 @@ updateExamData: async function (req, res) {
 
       // Find the existing exam
       const existingExam = await examModel.findById(examId);
+      
 
       if (!existingExam) {
         return res.status(404).json({ success: false, message: 'Exam not found' });
       }
-
+      if (typeof updateData.examType !== 'undefined') {
+        existingExam.examType = updateData.examType;
+      }
+      
       // Update exam properties (excluding the image)
       existingExam.examName = updateData.examName || existingExam.examName;
       existingExam.description = updateData.description || existingExam.description;
