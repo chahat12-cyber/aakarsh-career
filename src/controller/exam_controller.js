@@ -7,73 +7,88 @@ const upload = multer({ storage: storage });
 
 const ExamController = {
   createExam: async function (req, res) {
-    console.log(`calling`)
+    console.log(`calling`);
     try {
-      // Use the 'upload.single' middleware to handle the image file upload
-      upload.single('image')(req, res, async function (err) {
-        if (err instanceof multer.MulterError) {
-          return res.status(400).json({ success: false, message: 'Image upload error' });
-        } else if (err) {
-          return res.status(500).json({ success: false, message: err });
-        }
-  
-        const data = req.body;
-        const image = req.file;
+        // Use the 'upload.single' middleware to handle the image file upload
+        upload.single('image')(req, res, async function (err) {
+            if (err instanceof multer.MulterError) {
+                return res.status(400).json({ success: false, message: 'Image upload error' });
+            } else if (err) {
+                return res.status(500).json({ success: false, message: err });
+            }
 
-        console.log(data)
-        console.log(image)
-        const usersArray = JSON.parse(data.users);
-        const newData = new examModel({
-          examName: data.examName,
-          description: data.description,
-          entrance: data.entrance,
-          stream: data.stream,
-          class: data.class,
-          image: {
-            data: image.buffer,
-            contentType: image.mimetype,
-          },
-          users: usersArray
+            const data = req.body;
+            const image = req.file;
+
+            // Check if req.file is defined
+            if (!image) {
+                return res.status(400).json({ success: false, message: 'Image file is required' });
+            }
+
+            console.log(data); // Check the data received
+            console.log(image); // Check the image data
+
+            // Parse JSON data from 'users' field
+            const usersArray = JSON.parse(data.users);
+
+            // Create a new exam using the examModel
+            const newData = new examModel({
+                examName: data.examName,
+                description: data.description,
+                entrance: data.entrance,
+                stream: data.stream,
+                class: data.class,
+                examType: data.examType,
+                image: {
+                    data: image.buffer,
+                    contentType: image.mimetype,
+                },
+                users: usersArray,
+            });
+
+            await newData.save();
+            console.log(newData);
+
+            // Create a response object
+            const responseObject = {
+                _id: newData._id,
+                examName: data.examName,
+                description: data.description,
+                entrance: data.entrance,
+                stream: data.stream,
+                class: data.class,
+                examType: data.examType,
+                image: newData.image.data.toString('base64'),
+                users: newData.users,
+            };
+
+            res.json({ success: true, data: responseObject });
         });
-  
-        await newData.save();
-      console.log(newData);
-        // Create a response object that includes the _id, name, and image
-        const responseObject = {
-          _id: newData._id, // Include the _id field
-          examName: data.examName,
-          description: data.description,
-          entrance: data.entrance,
-          stream: data.stream,
-           class: data.class,
-          image: newData.image.data.toString('base64'), // Convert image data to base64
-          users: newData.users
-        };
-  
-        res.json({ success: true, data: responseObject });
-      });
     } catch (ex) {
-      return res.status(500).json({ success: false, message: ex });
+        return res.status(500).json({ success: false, message: ex.message });
     }
-  },
+},
+
+
   
   fetchAllExams: async function (req, res) {
     try {
-      // Specify the field names you want in the projection
-      const foundExams = await examModel.find({}, '_id examName description stream class image users').lean();
+      // Specify the field names you want in the projection, including 'examType'
+      const foundExams = await examModel.find({}, '_id examName description stream class image examType users').lean();
   
       const formattedExams = foundExams.map((exam) => {
         // Convert the image data to base64
         const imageBase64 = exam.image.data.toString('base64');
   
         return {
-          _id: exam._id, // Include the _id field
+          _id: exam._id,
           examName: exam.examName,
           description: exam.description,
           stream: exam.stream,
           class: exam.class,
+          examType: exam.examType,
           image: imageBase64,
-          users: exam.users
+          users: exam.users,
         };
       });
   
@@ -82,11 +97,11 @@ const ExamController = {
       return res.json({ success: false, message: ex });
     }
   },
+  
   getExamByFilter: async function (req, res) {
     console.log(`calling`)
     const { className, streamName, entranceName } = req.body;
-    console.log(className)
-    console.log(streamName)
+   
     console.log('Received query parameters:', { className, streamName, entranceName });
   
     // Create a filter object based on the provided query parameters
@@ -118,8 +133,9 @@ const ExamController = {
           description: exam.description,
           stream: exam.stream,
           class: exam.class,
+          examType: exam.examType,
           image: imageBase64,
-          users: exam.users
+          users: exam.users,
         };
       });
   
@@ -146,6 +162,7 @@ getExamByUserId: async function(req,res){
         description: exam.description,
         stream: exam.stream,
         class: exam.class,
+        examType: exam.examType,
         image: imageBase64,
         users: exam.users
       };
@@ -177,6 +194,7 @@ getExamByExamId: async function (req, res) {
       description: findexam.description,
       stream: findexam.stream,
       class: findexam.class,
+      examType: findexam.examType,
       image: imageBase64,
       users: findexam.users,
     };
@@ -216,6 +234,7 @@ updateExamData: async function (req, res) {
       existingExam.entrance = updateData.entrance || existingExam.entrance;
       existingExam.stream = updateData.stream || existingExam.stream;
       existingExam.class = updateData.class || existingExam.class;
+      existingExam.examType= updateData.examType || existingExam.examType;
 
       if (updatedImage) {
         // Update the image if a new one was provided
@@ -232,6 +251,7 @@ updateExamData: async function (req, res) {
         entrance: updatedExam.entrance,
         stream: updatedExam.stream,
         class: updatedExam.class,
+        examType: updatedExam.examType,
         image: updatedExam.image.data.toString('base64'), // Convert image data to base64
         users: updatedExam.users
       };
@@ -241,7 +261,6 @@ updateExamData: async function (req, res) {
     return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 },
-
 
   deleteExamData: async function(req, res)
     {
@@ -260,18 +279,21 @@ updateExamData: async function (req, res) {
           }
     },
 
-    // updateUserWithNewFields: async function (req, res) {
-    //   try {
-    //     examModel.getCollection('Exam').update({}, {$rename: { "entrance": "board" } }, false, true)
-
-    //   } catch (error) {
-    //     console.error(error);
-    //   }
-    // }
+    updateExamWithNewFields: async function (req, res) {
+      
+      
+      try {
+        const updateResult = await examModel.updateMany({}, { $set: { examType: "" } });
+    
+        console.log(`Updated ${updateResult.nModified} exam(s).`);
+      } catch (error) {
+        console.error(error);
+      }
+    }
     
     
   
 }
 
-// ExamController.updateUserWithNewFields();
+// ExamController.updateExamWithNewFields();
 module.exports = ExamController;

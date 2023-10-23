@@ -25,6 +25,10 @@ const examSchema = new Schema({
     data: Buffer,
     contentType: String,  
   },
+  examType: {
+    type: String,
+    required: true,
+  },
   users: [
     {
       type: Schema.Types.ObjectId,
