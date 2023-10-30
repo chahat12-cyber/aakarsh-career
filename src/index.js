@@ -23,6 +23,7 @@ const StreamRoutes = require('./routes/stream_route');
 const ExamRoutes = require('./routes/exam_route');
 const ExamTypeRoutes = require('./routes/exam_type_route');
 const SubjectRoutes = require('./routes/subject_route');
+const ChapterRoutes = require('./routes/chapter_route');
 
 app.use("/api/user", UserRoutes);
 app.use("/api/entrance", EntranceRoutes);
@@ -32,6 +33,7 @@ app.use("/api/stream", StreamRoutes);
 app.use("/api/exam", ExamRoutes);
 app.use("/api/exam-type", ExamTypeRoutes);
 app.use("/api/subject", SubjectRoutes);
+app.use("/api/chapter", ChapterRoutes);
 
 const PORT= process.env.PORT || 8000;
 

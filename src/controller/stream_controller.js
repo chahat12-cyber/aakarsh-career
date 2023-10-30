@@ -28,7 +28,31 @@ const StreamController = {
         }
     },
 
+    fetchStreamById: async function(req, res){
+        const streamId = req.params.Id;
+        console.log(streamId);
+      
+        try {
+          const findstream = await StreamModel.findById(streamId);
+      
+          if (!findstream) {
+            return res.status(404).json({ error: 'Exam not found' });
+          }
+      
+      
+          const formattedStream = {
+            _id: findstream._id,
+            stream: findstream.stream,
+            
+           
+          };
+      
+          res.json({ formattedStream });
+        } catch (error) {
+          res.status(500).json({ error: 'Internal Server Error' });
+        }
 
+},
      
 
       updateStreamData: async function(req, res) {

@@ -106,6 +106,32 @@ fetchAllSubject: async function (req, res) {
           return res.status(500).json({ success: false, message: error.message });
         }
       },
+      fetchSubjectById: async function(req, res){
+        const subjectId = req.params.Id;
+        console.log(subjectId);
+      
+        try {
+          const findsubject = await subjectModel.findById(subjectId);
+      
+          if (!findsubject) {
+            return res.status(404).json({ error: 'Exam not found' });
+          }
+      
+          // Format the exam here (no need to use .map())
+          const imageBase64 = findsubject.image.data.toString('base64');
+          const formattedExam = {
+            _id: findsubject._id,
+            subjectName: findsubject.subjectName,
+            image: imageBase64,
+           
+          };
+      
+          res.json({ formattedExam });
+        } catch (error) {
+          res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+},
       updateSubjectById: async function (req, res) {
         try {
           const subjectId = req.params.id;
