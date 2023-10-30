@@ -14,6 +14,14 @@ const chapterSchema = new Schema({
     ref: 'Subject', 
     required: true,
   },
+  class: {
+    type: String,
+    required: true,
+  },
+  stream: {
+    type: String,
+    required: true,
+  },
  
 });
 

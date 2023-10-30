@@ -29,7 +29,7 @@ app.use("/api/user", UserRoutes);
 app.use("/api/entrance", EntranceRoutes);
 app.use("/api/board", BoardRoutes);
 app.use("/api/class", ClassRoutes);
-app.use("/api/stream", StreamRoutes);
+app.use("/api/streams", StreamRoutes);
 app.use("/api/exam", ExamRoutes);
 app.use("/api/exam-type", ExamTypeRoutes);
 app.use("/api/subject", SubjectRoutes);
