@@ -100,9 +100,9 @@ const ExamController = {
   
   getExamByFilter: async function (req, res) {
     console.log(`calling`)
-    const { className, streamName, entranceName } = req.body;
+    const { className, streamName, examType } = req.body;
    
-    console.log('Received query parameters:', { className, streamName, entranceName });
+    console.log('Received query parameters:', { className, streamName, examType });
   
     // Create a filter object based on the provided query parameters
     const filter = {};
@@ -115,10 +115,10 @@ const ExamController = {
       filter.stream = streamName;
       console.log('Adding stream filter:', streamName);
     }
-    if (entranceName) {
-      filter.entrance = entranceName;
-      console.log('Adding entrance filter:', entranceName);
-    }
+    // if (examType) {
+    //   filter.examType = examType;
+    //   console.log('Adding entrance filter:', examType);
+    // }
   
     try {
       const exams = await examModel.find(filter);
