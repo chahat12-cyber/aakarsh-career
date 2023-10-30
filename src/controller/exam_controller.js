@@ -7,14 +7,14 @@ const upload = multer({ storage: storage });
 
 const ExamController = {
   createExam: async function (req, res) {
-    console.log(`calling`);
+    console.log('Calling createExam');
     try {
         // Use the 'upload.single' middleware to handle the image file upload
         upload.single('image')(req, res, async function (err) {
             if (err instanceof multer.MulterError) {
                 return res.status(400).json({ success: false, message: 'Image upload error' });
             } else if (err) {
-                return res.status(500).json({ success: false, message: err });
+                return res.status(500).json({ success: false, message: err.message });
             }
 
             const data = req.body;
@@ -25,11 +25,16 @@ const ExamController = {
                 return res.status(400).json({ success: false, message: 'Image file is required' });
             }
 
-            console.log(data); // Check the data received
-            console.log(image); // Check the image data
+            console.log('Received data:', data); // Check the data received
+            console.log('Received image:', image); // Check the image data
 
             // Parse JSON data from 'users' field
-            const usersArray = JSON.parse(data.users);
+            let usersArray;
+            try {
+                usersArray = JSON.parse(data.users);
+            } catch (ex) {
+                return res.status(400).json({ success: false, message: 'Invalid JSON data in the users field' });
+            }
 
             // Create a new exam using the examModel
             const newData = new examModel({
@@ -47,7 +52,7 @@ const ExamController = {
             });
 
             await newData.save();
-            console.log(newData);
+            console.log('Created exam:', newData);
 
             // Create a response object
             const responseObject = {
@@ -68,6 +73,7 @@ const ExamController = {
         return res.status(500).json({ success: false, message: ex.message });
     }
 },
+
 
 
   
@@ -239,6 +245,7 @@ updateExamData: async function (req, res) {
       existingExam.stream = updateData.stream || existingExam.stream;
       existingExam.class = updateData.class || existingExam.class;
       existingExam.examType= updateData.examType || existingExam.examType;
+      existingExam.users = updateData.users || existingExam.users;
 
       if (updatedImage) {
         // Update the image if a new one was provided
