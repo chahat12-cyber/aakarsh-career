@@ -18,7 +18,7 @@ const chapterSchema = new Schema({
     type: String,
     required: true,
   },
-  stream: {
+  board: {
     type: String,
     required: true,
   },

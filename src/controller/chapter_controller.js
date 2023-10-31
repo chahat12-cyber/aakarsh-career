@@ -53,6 +53,33 @@ const ChapterController = {
                 return res.json({ success: false, message: ex });
             }
         },
+
+        fetchChapterByFilter: async function(req,res){
+          const { className, subjectId, board } = req.query;
+
+         try {
+    // Create a filter object based on the provided query parameters
+    const filter = {};
+
+    if (className) {
+      filter.class = className;
+    }
+    if (subjectId) {
+      filter.subject = subjectId;
+    }
+    if (board) {
+      filter.board = board;
+    }
+
+    // Find chapters based on the filter
+    const chapters = await chapterModel.find(filter).exec();
+
+    return res.json({ success: true, data: chapters });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+
+        },
     
         updateChapter: async function(req,res){
             try{
@@ -78,8 +105,6 @@ const ChapterController = {
  
         },
         deleteChapter: async function(req, res){
-           
-
             try {
                 const id = req.params.Id; 
             
@@ -97,10 +122,22 @@ const ChapterController = {
                 console.error('Error deleting user:', err);
                 res.status(500).json({ error: 'Internal Server Error' });
               }
+},
+updateChapterWithNewFields: async function (req, res) {
+  try {
+    // Use the updateMany method to update multiple chapters
+    const updateResult = await chapterModel.updateMany({}, { $set: { class: '12', board: 'State Board' } });
+
+    console.log(`Updated ${updateResult.nModified} chapter(s).`);
+    
+  } catch (error) {
+    console.error(error);
+  }
 }
+
         
     }
 
-
+    // ChapterController.updateChapterWithNewFields();
 
 module.exports = ChapterController
