@@ -28,6 +28,7 @@ const StreamController = {
                 // Create a new exam using the examModel
                 const newData = new subjectModel({
                     subjectName: data.subjectName,
+                    class: data.class,
                     image: {
                         data: image.buffer,
                         contentType: image.mimetype,
@@ -43,6 +44,7 @@ const StreamController = {
                 const responseObject = {
                     _id: newData._id,
                     subjectName: data.subjectName,
+                    class: data.class,
                     image: newData.image.data.toString('base64'),
                     stream: data.stream
                     
@@ -65,6 +67,7 @@ fetchAllSubject: async function (req, res) {
       
           return {
             _id: subject._id,
+            class: subject.class,
             subjectName: subject.subjectName, // Changed 'examName' to 'subjectName'
             image: imageBase64,
             stream: subject.stream
@@ -79,23 +82,20 @@ fetchAllSubject: async function (req, res) {
     
     fetchSubjectsByStream: async function (req, res) {
         try {
-          const selectedStream = req.body.stream;
-          console.log(selectedStream);
-          // Find the stream document for the selected stream
-          const stream = await streamModel.findOne({ _id: selectedStream });
-           
-          if (!stream) {
-            return res.status(404).json({ success: false, message: 'Stream not found' });
-          }
-      
-          // Use the stream's ObjectId to populate subjects
-          const subjects = await subjectModel.find({ stream: stream._id }).exec();
+          const {Stream, Class} = req.query;
+         
+          console.log('Stream:', Stream);
+console.log('Class:', Class);
+
+          const subjects = await subjectModel.find({ stream: Stream, class: Class }).exec();
+
           const formattedSubjects = subjects.map((subject) => {
             // Convert the image data to base64
             const imageBase64 = subject.image.data.toString('base64');
         
             return {
               _id: subject._id,
+              class: subject.class,
               subjectName: subject.subjectName, // Changed 'examName' to 'subjectName'
               image: imageBase64,
               stream: subject.stream
@@ -121,7 +121,9 @@ fetchAllSubject: async function (req, res) {
           const imageBase64 = findsubject.image.data.toString('base64');
           const formattedExam = {
             _id: findsubject._id,
+            class: findsubject.class,
             subjectName: findsubject.subjectName,
+            stream: findsubject.stream,
             image: imageBase64,
            
           };
@@ -156,6 +158,8 @@ fetchAllSubject: async function (req, res) {
       
             // Update exam properties (excluding the image)
             existingSubject.subjectName = updateData.subjectName || existingSubject.subjectName;
+            existingSubject.class = updateData.class || existingSubject.class;
+            existingSubject.stream = updateData.stream || existingSubject.stream;
            
             if (updatedImage) {
               // Update the image if a new one was provided
@@ -168,6 +172,8 @@ fetchAllSubject: async function (req, res) {
             const responseObject = {
               _id: updatedSubject._id, // Include the _id field
               subjectName: updatedSubject.subjectName,
+              class: updatedSubject.class,
+              stream: updatedSubject.stream,
               image: updatedSubject.image.data.toString('base64'), // Convert image data to base64
              
             };
@@ -187,7 +193,7 @@ fetchAllSubject: async function (req, res) {
             return res.status(404).json({ success: false, message: 'ExamType not found' });
           }
       
-          res.json({ success: true, message: 'ExamType deleted' });
+          res.json({ success: true, message: 'Subject deleted' });
         } catch (ex) {
           return res.status(500).json({ success: false, message: ex });
         }
