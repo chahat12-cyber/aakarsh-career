@@ -20,15 +20,13 @@ const ExamController = {
             const data = req.body;
             const image = req.file;
 
-            // Check if req.file is defined
             if (!image) {
                 return res.status(400).json({ success: false, message: 'Image file is required' });
             }
 
-            console.log('Received data:', data); // Check the data received
-            console.log('Received image:', image); // Check the image data
+            console.log('Received data:', data); 
+            console.log('Received image:', image);
 
-            // Parse JSON data from 'users' field
             let usersArray;
             try {
                 usersArray = JSON.parse(data.users);
@@ -36,7 +34,6 @@ const ExamController = {
                 return res.status(400).json({ success: false, message: 'Invalid JSON data in the users field' });
             }
 
-            // Create a new exam using the examModel
             const newData = new examModel({
                 examName: data.examName,
                 description: data.description,
@@ -211,65 +208,70 @@ getExamByExamId: async function (req, res) {
   }
 },
 
+updateExamData: async function(req, res) {
+  const examId = req.params.id;
 
-updateExamData: async function (req, res) {
   try {
-    const examId = req.params.id;
-    const updateData = req.body;
-
     // Use the 'upload.single' middleware to handle the image file upload
     upload.single('image')(req, res, async function (err) {
       if (err instanceof multer.MulterError) {
         return res.status(400).json({ success: false, message: 'Image upload error' });
       } else if (err) {
-        return res.status(500).json({ success: false, message: err });
+        return res.status(500).json({ success: false, message: err.message });
       }
 
-      const updatedImage = req.file; // This will contain the updated image
-
-      // Find the existing exam
+      const updateData = req.body;
+      const image = req.file;
       const existingExam = await examModel.findById(examId);
-      
 
       if (!existingExam) {
         return res.status(404).json({ success: false, message: 'Exam not found' });
       }
-      if (typeof updateData.examType !== 'undefined') {
+
+      // Update fields from form-data
+      if (updateData.examName) {
+        existingExam.examName = updateData.examName;
+      }
+      if (updateData.description) {
+        existingExam.description = updateData.description;
+      }
+      if (updateData.entrance) {
+        existingExam.entrance = updateData.entrance;
+      }
+      if (updateData.stream) {
+        existingExam.stream = updateData.stream;
+      }
+      if (updateData.class) {
+        existingExam.class = updateData.class;
+      }
+      if (updateData.examType) {
         existingExam.examType = updateData.examType;
       }
-      
-      // Update exam properties (excluding the image)
-      existingExam.examName = updateData.examName || existingExam.examName;
-      existingExam.description = updateData.description || existingExam.description;
-      existingExam.entrance = updateData.entrance || existingExam.entrance;
-      existingExam.stream = updateData.stream || existingExam.stream;
-      existingExam.class = updateData.class || existingExam.class;
-      existingExam.examType= updateData.examType || existingExam.examType;
-      existingExam.users = updateData.users || existingExam.users;
 
-      if (updatedImage) {
-        // Update the image if a new one was provided
-        existingExam.image.data = updatedImage.buffer;
-        existingExam.image.contentType = updatedImage.mimetype;
+      // Update the image data if a new image is provided
+      if (image) {
+        existingExam.image.data = image.buffer;
+        existingExam.image.contentType = image.mimetype;
       }
 
       // Save the updated exam
       const updatedExam = await existingExam.save();
+
       const responseObject = {
-        _id: updatedExam._id, // Include the _id field
+        _id: updatedExam._id,
         examName: updatedExam.examName,
         description: updatedExam.description,
         entrance: updatedExam.entrance,
         stream: updatedExam.stream,
         class: updatedExam.class,
         examType: updatedExam.examType,
-        image: updatedExam.image.data.toString('base64'), // Convert image data to base64
-        users: updatedExam.users
+        image: updatedExam.image.data.toString('base64'),
       };
+
       return res.json({ success: true, data: responseObject });
     });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+  } catch (ex) {
+    return res.status(500).json({ success: false, message: ex.message });
   }
 },
 
