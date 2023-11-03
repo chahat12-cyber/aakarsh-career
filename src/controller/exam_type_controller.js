@@ -73,50 +73,52 @@ const ExamTypeController = {
       
       
       updateExamTypeById: async function (req, res) {
-        try {
-          const examId = req.params.id;
-          const updateData = req.body;
-      
-          // Use the 'upload.single' middleware to handle the image file upload
-          upload.single('image')(req, res, async function (err) {
-            if (err instanceof multer.MulterError) {
-              return res.status(400).json({ success: false, message: 'Image upload error' });
-            } else if (err) {
-              return res.status(500).json({ success: false, message: err });
-            }
-      
-            const updatedImage = req.file; // This will contain the updated image
-      
-            // Find the existing exam
-            const existingExam = await examTypeModel.findById(examId);
-      
-            if (!existingExam) {
-              return res.status(404).json({ success: false, message: 'Exam not found' });
-            }
-      
-            // Update exam properties (excluding the image)
-            existingExam.examTypeName = updateData.examTypeName || existingExam.examTypeName;
-           
-            if (updatedImage) {
-              // Update the image if a new one was provided
-              existingExam.image.data = updatedImage.buffer;
-              existingExam.image.contentType = updatedImage.mimetype;
-            }
-      
-            // Save the updated exam
-            const updatedExam = await existingExam.save();
-            const responseObject = {
-              _id: updatedExam._id, // Include the _id field
-              examTypeName: updatedExam.examTypeName,
-              image: updatedExam.image.data.toString('base64'), // Convert image data to base64
-             
-            };
-            return res.json({ success: true, data: responseObject });
-          });
-        } catch (error) {
-          return res.status(500).json({ success: false, message: 'Internal Server Error' });
-        }
-      },
+  const examTypeId = req.params.id;
+
+  try {
+    // Use the 'upload.single' middleware to handle the image file upload
+    upload.single('image')(req, res, async function (err) {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ success: false, message: 'Image upload error' });
+      } else if (err) {
+        return res.status(500).json({ success: false, message: err.message });
+      }
+
+      const updateData = req.body;
+      const image = req.file;
+      const existingExamType = await examTypeModel.findById(examTypeId);
+
+      if (!existingExamType) {
+        return res.status(404).json({ success: false, message: 'Exam type not found' });
+      }
+
+      // Update fields from form-data
+      if (updateData.examTypeName) {
+        existingExamType.examTypeName = updateData.examTypeName;
+      }
+
+      // Update the image data if a new image is provided
+      if (image) {
+        existingExamType.image.data = image.buffer;
+        existingExamType.image.contentType = image.mimetype;
+      }
+
+      // Save the updated exam type
+      const updatedExamType = await existingExamType.save();
+
+      const responseObject = {
+        _id: updatedExamType._id,
+        examTypeName: updatedExamType.examTypeName,
+        image: updatedExamType.image.data.toString('base64'),
+      };
+
+      return res.json({ success: true, data: responseObject });
+    });
+  } catch (ex) {
+    return res.status(500).json({ success: false, message: ex.message });
+  }
+},
+
       fetchExamTypeById: async function (req, res) {
         try {
           const { id } = req.params;
