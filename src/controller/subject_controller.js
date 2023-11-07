@@ -135,40 +135,41 @@ console.log('Class:', Class);
 
 },
       updateSubjectById: async function (req, res) {
-        try {
-          const subjectId = req.params.id;
-          const updateData = req.body;
-      
-          // Use the 'upload.single' middleware to handle the image file upload
-          upload.single('image')(req, res, async function (err) {
-            if (err instanceof multer.MulterError) {
-              return res.status(400).json({ success: false, message: 'Image upload error' });
-            } else if (err) {
-              return res.status(500).json({ success: false, message: err });
-            }
-      
-            const updatedImage = req.file; // This will contain the updated image
-      
-            // Find the existing exam
-            const existingSubject = await subjectModel.findById(subjectId);
-      
-            if (!existingSubject) {
-              return res.status(404).json({ success: false, message: 'Exam not found' });
-            }
-      
-            // Update exam properties (excluding the image)
-            existingSubject.subjectName = updateData.subjectName || existingSubject.subjectName;
+
+const subjectId = req.params.id;
+
+  try {
+    // Use the 'upload.single' middleware to handle the image file upload
+    upload.single('image')(req, res, async function (err) {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ success: false, message: 'Image upload error' });
+      } else if (err) {
+        return res.status(500).json({ success: false, message: err.message });
+      }
+
+      const updateData = req.body;
+      const image = req.file;
+      const existingSubject = await subjectModel.findById(subjectId);
+
+      if (!existingSubject) {
+        return res.status(404).json({ success: false, message: 'Subject not found' });
+      }
+
+      // Update fields from form-data
+      if (updateData.subjectName) {
+           existingSubject.subjectName = updateData.subjectName || existingSubject.subjectName;
             existingSubject.class = updateData.class || existingSubject.class;
             existingSubject.stream = updateData.stream || existingSubject.stream;
-           
-            if (updatedImage) {
+      }
+
+      // Update the image data if a new image is provided
+       if (image) {
               // Update the image if a new one was provided
-              existingSubject.image.data = updatedImage.buffer;
-              existingSubject.image.contentType = updatedImage.mimetype;
+              existingSubject.image.data = image.buffer;
+              existingSubject.image.contentType = image.mimetype;
             }
-      
-            // Save the updated exam
-            const updatedSubject = await existingSubject.save();
+
+     const updatedSubject = await existingSubject.save();
             const responseObject = {
               _id: updatedSubject._id, // Include the _id field
               subjectName: updatedSubject.subjectName,
@@ -177,11 +178,14 @@ console.log('Class:', Class);
               image: updatedSubject.image.data.toString('base64'), // Convert image data to base64
              
             };
-            return res.json({ success: true, data: responseObject });
-          });
-        } catch (error) {
-          return res.status(500).json({ success: false, message: 'Internal Server Error' });
-        }
+
+      return res.json({ success: true, data: responseObject });
+    });
+  } catch (ex) {
+    return res.status(500).json({ success: false, message: ex.message });
+  }
+
+        
       },
       deleteSubjectById: async function (req, res) {
         try {

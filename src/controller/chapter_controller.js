@@ -80,7 +80,7 @@ const ChapterController = {
   }
 
         },
-    
+
         updateChapter: async function(req,res){
             try{
             const chapterId = req.params.Id;
