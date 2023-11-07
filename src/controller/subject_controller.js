@@ -184,8 +184,6 @@ const subjectId = req.params.id;
   } catch (ex) {
     return res.status(500).json({ success: false, message: ex.message });
   }
-
-        
       },
       deleteSubjectById: async function (req, res) {
         try {

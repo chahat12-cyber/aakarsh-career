@@ -6,13 +6,18 @@ const conceptsSchema = new Schema({
     required: true,
     unique: true, 
   },
-  conceptDecription: {
-    type: String
+  conceptDescription: {
+    type: String,
+    required: true
   },
   subject: {
     type: Schema.Types.ObjectId,
     ref: 'Subject', 
     required: true,
+  },
+  stream: {
+    type: String,
+    required: true
   },
   class: {
     type: String,
@@ -22,9 +27,19 @@ const conceptsSchema = new Schema({
     type: String,
     required: true,
   },
+  topic: {
+    type: String,
+    required: true
+  },
+  study_material: [
+    {
+      data: Buffer,
+      contentType: String,
+    },
+  ],
  
 });
 
 
-const Chapter = model('Chapter', chapterSchema);
+const Chapter = model('Concept', conceptsSchema);
 module.exports = Chapter;

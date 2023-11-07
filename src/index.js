@@ -25,6 +25,7 @@ const ExamTypeRoutes = require('./routes/exam_type_route');
 const SubjectRoutes = require('./routes/subject_route');
 const ChapterRoutes = require('./routes/chapter_route');
 const ChapterTopicRoutes = require('./routes/chapter_topic_route');
+const ConceptRoutes = require('./routes/concept_route');
 
 app.use("/api/user", UserRoutes);
 app.use("/api/entrance", EntranceRoutes);
@@ -36,6 +37,7 @@ app.use("/api/exam-type", ExamTypeRoutes);
 app.use("/api/subject", SubjectRoutes);
 app.use("/api/chapter", ChapterRoutes);
 app.use("/api/chapter-topic", ChapterTopicRoutes);
+app.use("/api/concept", ConceptRoutes);
 
 const PORT= process.env.PORT || 8000;
 
