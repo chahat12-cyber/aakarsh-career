@@ -1,8 +1,10 @@
 const conceptModel = require('../model/concepts_model');
 const multer = require('multer');
-
 const storage = multer.memoryStorage(); // Use memory storage
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // Limit file size to 50MB
+});
 const ConceptController = {
 
     createConcept: async function(req, res) {
