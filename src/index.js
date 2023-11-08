@@ -4,7 +4,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
 const mongoose = require('mongoose');
-
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -12,6 +14,7 @@ app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors());
 require('dotenv').config();
+
 
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true }).then(()=> console.log('Database connected'));
 
@@ -38,6 +41,9 @@ app.use("/api/subject", SubjectRoutes);
 app.use("/api/chapter", ChapterRoutes);
 app.use("/api/chapter-topic", ChapterTopicRoutes);
 app.use("/api/concept", ConceptRoutes);
+
+
+// Increase the file size limit to 50 MB and allow PDF, Word, and video file types
 
 const PORT= process.env.PORT || 8000;
 
