@@ -4,6 +4,7 @@ const storage = multer.memoryStorage(); // Use memory storage
 const upload = multer({
   storage: storage,
   limits: { fileSize: 50 * 1024 * 1024 }, // Limit file size to 50MB
+// Limit file size to 50MB
 });
 const ConceptController = {
 
@@ -18,7 +19,7 @@ const ConceptController = {
 
       const data = req.body;
       const files = req.files;
-
+     
       if (!files) {
         return res.status(400).json({ success: false, message: 'File is required' });
       }
@@ -31,10 +32,12 @@ const ConceptController = {
         stream: data.stream,
         board: data.board,
         topic: data.topic,
+        chapter: data.chapter,
         class: data.class,
         study_material: files.map(file => ({
           data: file.buffer,
           contentType: file.mimetype,
+         
         })),
       });
 
@@ -53,11 +56,13 @@ const ConceptController = {
         subject: newConcept.subject,
         stream: newConcept.stream,
         board: newConcept.board,
+        chapter: newConcept.chapter,
         topic: newConcept.topic,
         class: newConcept.class,
         study_material: newConcept.study_material.map(item => ({
           contentType: item.contentType,
           data: item.data.toString('base64'),
+          chapter: newConcept.chapter
         })),
       };
 
@@ -389,8 +394,26 @@ fetchConceptsByConceptName: async function (req, res) {
     console.error('Deletion error:', ex);
     res.status(500).json({ success: false, message: 'Deletion error: ' + ex.message });
   }
-    }
-}
+    },
+    
+  //   updateConceptWithNewFields: async function (req, res) {
+  //      try {
+  //   const updateResult = await Concept.updateMany({}, { $set: { "study_material.$[].chapter": "Reproduction System" } });
 
+  //   console.log(updateResult);
+  //   console.log(`Updated ${updateResult.nModified} document(s).`);
+    
+  //   res.json({ success: true, message: `Updated ${updateResult.nModified} document(s).` });
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).json({ success: false, message: error.message });
+  // }
+
+
+
+// }
+};
+// ConceptController.updateConceptWithNewFields();
 
 module.exports = ConceptController
+    
