@@ -27,6 +27,9 @@ const conceptsSchema = new Schema({
     type: String,
     required: true,
   },
+  chapter: {
+    type: String
+  },
   topic: {
     type: String,
     required: true
@@ -42,5 +45,5 @@ const conceptsSchema = new Schema({
 
 //Added
 
-const Chapter = model('Concept', conceptsSchema);
-module.exports = Chapter;
+const Concept = model('Concept', conceptsSchema);
+module.exports = Concept;
