@@ -124,7 +124,7 @@ fetchTopicByFilter: async function(req,res){
                 console.error('Error deleting user:', err);
                 res.status(500).json({ error: 'Internal Server Error' });
               }
-            }
+            },
 };
 
 module.exports = ChapterTitleController

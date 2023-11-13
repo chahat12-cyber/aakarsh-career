@@ -1,12 +1,12 @@
+// ----------Packages-----------------
+
 const express= require('express');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -17,6 +17,8 @@ require('dotenv').config();
 
 
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true }).then(()=> console.log('Database connected'));
+
+// ---------------Routes------------ 
 
 const UserRoutes = require('./routes/user_route');
 const EntranceRoutes = require('./routes/entrance_route');
@@ -29,6 +31,8 @@ const SubjectRoutes = require('./routes/subject_route');
 const ChapterRoutes = require('./routes/chapter_route');
 const ChapterTopicRoutes = require('./routes/chapter_topic_route');
 const ConceptRoutes = require('./routes/concept_route');
+const VideoRoutes = require('./routes/video_route');
+const QuestionRoutes = require('./routes/question_route');
 
 app.use("/api/user", UserRoutes);
 app.use("/api/entrance", EntranceRoutes);
@@ -41,9 +45,10 @@ app.use("/api/subject", SubjectRoutes);
 app.use("/api/chapter", ChapterRoutes);
 app.use("/api/chapter-topic", ChapterTopicRoutes);
 app.use("/api/concept", ConceptRoutes);
+app.use("/api/video", VideoRoutes);
+app.use("/api/questions", QuestionRoutes);
 
 
-// Increase the file size limit to 50 MB and allow PDF, Word, and video file types
 
 const PORT= process.env.PORT || 8000;
 
