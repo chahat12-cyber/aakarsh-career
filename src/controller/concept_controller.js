@@ -98,6 +98,7 @@ fetchAllConcepts: async function (req, res) {
         subject: concept.subject,
         stream: concept.stream,
         class: concept.class,
+        chapter: concept.chapter,
         topic: concept.topic,
         study_material: formattedStudyMaterial,
       };
@@ -162,7 +163,9 @@ const responseObject = {
         subject: updatedConcept.subject,
         stream: updatedConcept.stream,
         class: updatedConcept.class,
+        chapter: updatedConcept.chapter,
         topic: updatedConcept.topic,
+
         study_material: updatedConcept.study_material.map((item) => ({
           contentType: item.contentType,
           data: item.data.toString('base64'),
@@ -203,6 +206,7 @@ fetchConceptsById: async function (req, res) {
       subject: concept.subject,
       stream: concept.stream,
       class: concept.class,
+      chapter: concept.chapter,
       topic: concept.topic,
       study_material: formattedStudyMaterial,
     };
@@ -262,6 +266,7 @@ fetchConceptsByCriteria: async function (req, res) {
         subject: concept.subject,
         stream: concept.stream,
         class: concept.class,
+        chapter: concept.chapter,
         topic: concept.topic,
         study_material: formattedStudyMaterial,
       };
@@ -301,6 +306,7 @@ fetchConceptsByConceptName: async function (req, res) {
         subject: concept.subject,
         stream: concept.stream,
         class: concept.class,
+         chapter: concept.chapter,
         topic: concept.topic,
         study_material: formattedStudyMaterial,
       };
@@ -339,7 +345,9 @@ fetchConceptsByConceptName: async function (req, res) {
         existingConcept.subject = updateData.subject || existingConcept.subject;
         existingConcept.stream = updateData.stream || existingConcept.stream;
         existingConcept.class = updateData.class || existingConcept.class;
+        existingConcept.chapter = updateData.chapter || existingConcept.chapter,
         existingConcept.topic = updateData.topic || existingConcept.topic;
+        
       }
 
       // Update the study_material with new data (if new files are provided)
@@ -360,6 +368,7 @@ fetchConceptsByConceptName: async function (req, res) {
         subject: updatedConcept.subject,
         stream: updatedConcept.stream,
         class: updatedConcept.class,
+         chapter: updatedConcept.chapter,
         topic: updatedConcept.topic,
         study_material: updatedConcept.study_material.map((item) => ({
           contentType: item.contentType,
