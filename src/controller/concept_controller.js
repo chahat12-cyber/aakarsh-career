@@ -76,7 +76,7 @@ const ConceptController = {
 fetchAllConcepts: async function (req, res) {
   try {
     // Specify the field names you want in the projection, including 'conceptName' and 'conceptDescription'
-    const foundConcepts = await conceptModel.find({}, '_id conceptName conceptDescription subject stream class topic study_material').lean();
+    const foundConcepts = await conceptModel.find({}, '_id conceptName conceptDescription subject stream class board chapter topic study_material').lean();
 
     const formattedConcepts = foundConcepts.map((concept) => {
       // Convert study_material data to base64 (assuming it's an array of objects)
