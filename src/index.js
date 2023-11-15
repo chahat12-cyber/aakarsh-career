@@ -33,6 +33,7 @@ const ChapterTopicRoutes = require('./routes/chapter_topic_route');
 const ConceptRoutes = require('./routes/concept_route');
 const VideoRoutes = require('./routes/video_route');
 const QuestionRoutes = require('./routes/question_route');
+const TestRoutes = require('./routes/test_route');
 
 app.use("/api/user", UserRoutes);
 app.use("/api/entrance", EntranceRoutes);
@@ -47,6 +48,7 @@ app.use("/api/chapter-topic", ChapterTopicRoutes);
 app.use("/api/concept", ConceptRoutes);
 app.use("/api/video", VideoRoutes);
 app.use("/api/questions", QuestionRoutes);
+app.use("/api/tests", TestRoutes);
 
 
 
